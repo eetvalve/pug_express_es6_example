@@ -19,6 +19,16 @@ router.get('/', (req, res, next) => {
     ];
     res.json(languages);
 });
+
+router.get('/pug', function (req, res) {
+    res.render('index', { title: 'Hey', message: 'Hello there!' })
+})
+
+router.get('/dashboard', function (req, res) {
+    res.render('dashboard', { title: 'toinen sivu', message: 'dashBoard!' })
+})
+
+
 router.get('/users', (req, res, next ) => {
     let users = [
         new User('James Coonce','jcoonce','none@none.com'),
