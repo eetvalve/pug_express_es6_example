@@ -1,48 +1,85 @@
-/**
- * Created by jamescoonce on 2/2/17.
- */
+
 import express from 'express';
 let router = express.Router();
 import User from '../models/user';
-/* GET home page. */
+import loggedOut from '../middleware/index.js';
+import requiresLogin from '../middleware/index.js';
+
+//login GET 
 router.get('/', (req, res, next) => {
-    let languages = [
-        {
-            language: 'Spanish'
-        },
-        {
-            language: "French"
-        },
-        {
-            langauge: "German"
-        }
-    ];
-    res.json(languages);
+    return res.render('login', { title: 'Kirjaudu palveluun'});
 });
 
-router.get('/pug', function (req, res) {
-    res.render('index', { title: 'Hey', message: 'Hello there!' })
-})
-
-router.get('/dashboard', function (req, res) {
-    res.render('dashboard', { title: 'toinen sivu', message: 'dashBoard!' })
-})
-
-
-router.get('/users', (req, res, next ) => {
-    let users = [
-        new User('James Coonce','jcoonce','none@none.com'),
-        new User('Bob Coonce','bcoonce','none@none.com'),
-        new User('Euri','euri','none@none.com'),
-        new User('Norman','jcoonce','none@none.com'),
-    ];
-
-    res.json(users);
+//login POST 
+router.post('/', (req, res, next) =>{
+	if(req.body.username &&
+			req.body.pw){
+		User.authenticate(req.body.username, req.body.pw, (error, user) =>{
+		if(error || !user){
+			let err = new Error('Virheellinen käyttäjätunnus tai salasana');
+			err.status=401;
+			return next(err);
+		} else {
+			req.session.userId = user._id;
+			return res.redirect('/insertssn');
+		}
+		});
+	}else {
+		let err = new Error('Kirjoita käyttäjätunnus ja salasana');
+		err.status = 401;
+		return next(err);
+	}
 });
 
-router.post('/user/create', (req, res) => {
-    let user = new User(req.body.name, req.body.username, req.body.email);
-    res.json(user);
-})
+//insert ssn etc. GET
+router.get('/insertssn', loggedOut, (req, res, next) =>{
+	return res.render('insertssn', { title: 'Syötä tiedot'});
+});
+
+//queryresult GET
+router.get('/queryresults', requiresLogin, (req, res, next) =>{
+	return res.render('queryresults', {title: 'Kyselyn tulokset'})
+});
+
+//createuser GET
+router.get('/createuser', loggedOut, (req, res, next) =>{
+	return res.render('createuser', { title: 'Luo uusi käyttäjä' });
+});
+
+//createuser POST 
+router.post('/createuser', (req, res, next) =>{
+	if(req.body.email &&
+			req.body.username &&
+			req.body.password &&
+			req.body.confirmpassword) {
+		
+		if(req.body.password !== req.body.confirmpassword){
+			let err = new Error('Salasanat eivät täsmää');
+			err.status = 400
+			return next(err);
+		}
+	
+		let user = new User(req.body.name, req.body.username, req.body.email);
+		res.json(user);
+		
+	} else {
+		let err = new Error('Kaikki kentät on täytettävä');
+		err.status = 400;
+		return next(err);
+	}
+});
+
+//log out page GET
+router.get('/logout', (req, res, next) =>{
+	  if (req.session) {
+	    req.session.destroy(function(err) {
+	      if(err) {
+	        return next(err);
+	      } else {
+	        return res.redirect('login'), { title: 'Kirjauduit ulos'};
+	      }
+	    });
+	  }
+	});
 
 export default router;

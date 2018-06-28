@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  .main.container
+    .row
+      .col-md-6.col-md-offset-3
+        h1.display-4.m-b-2 Luo uusi käyttäjä
+
+        form(method='POST', action='/createuser')
+          div.form-group
+            label(for='name') Käyttäjätunnus:
+            input#name.form-control(type='text', name='kayttajatunnus')
+            div.form-group
+            label(for='pw') Salasana:
+            input#pw.form-control(type='text', name='salasana')
+            div.form-group
+            label(for='email') Sähköpostiosoite:
+            input#email.form-control(type='text', name='sahkoposti')
+            
+          button.btn.btn-primary(type='submit') Luo käyttäjä

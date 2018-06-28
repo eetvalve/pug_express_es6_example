@@ -1,0 +1,15 @@
+extends layout.pug
+
+block content
+  .main.container.row
+      .col-md-6.col-md-offset-3
+        h1.display-4.m-b-2 Kirjautuminen Log Vieweriin
+
+        form(method='POST' action='login')
+          div.form-group
+            label(for='username') Käyttäjätunnus
+            input.form-control(type='text' id='username' name='username')
+          div.form-group
+            label(for='pw') Salasana
+            input.form-control(type='password' id='pw' name='pw')
+          button.btn.btn-primary(type='submit') Kirjaudu sisään
